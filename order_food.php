@@ -1,4 +1,12 @@
 <?php
+session_start();
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
+    exit();
+}
+
+
+
 include "db.php";
 $message = "";
 
@@ -7,13 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $customer_name = $_POST['customer_name'];
     $food_name = $_POST['food_name'];
     $quantity = $_POST['quantity'];
+    $payment_method = $_POST['payment_method'];
 
     if ($customer_name != "" && $food_name != "" && $quantity > 0) {
-        $sql = "INSERT INTO food_orders (customer_name, food_name, quantity) 
-        VALUES ('$customer_name', '$food_name', '$quantity')";
+        $sql = "INSERT INTO food_orders (customer_name, food_name, quantity, payment_method) 
+        VALUES ('$customer_name', '$food_name', '$quantity', '$payment_method')";
 
         if ($conn->query($sql)) {
-            $message = "Order placed successfully!";
+            header("Location: order_success.php");
+            exit(); 
         } else {
             $message = "Database error";
         }
@@ -58,6 +68,60 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             width: 100%;
             margin-bottom: 15px;
         }
+        .order-box button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .order-box button:hover {
+            background-color: #218838;
+        }
+         .order-box p {
+            text-align: center;
+            color: #dc3545;
+         }
+         .order-box p.success {
+            color: #28a745;
+         }
+         .order-box select {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            box-sizing: border-box;
+            font-size: 16px;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+         }
+         .order-box select:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+         }
+         .order-box input:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+         }
+         .order-box button:focus {
+            outline: none;
+         }
+         .order-box p {
+            font-weight: bold;
+         }
+         .order-box p.success {
+            color: #28a745;
+         }
+         .order-box p.error {
+            color: #dc3545;
+         }
+         
     </style>
 </head>
 <body>
@@ -74,6 +138,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <input type="text" name="food_name" placeholder="Food Name" required>
 
             <input type="number" name="quantity" placeholder="Quantity" min="1" required>
+
+            <select name="payment_method" required>
+                <option value="" disabled selected>Select Payment Method</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="paypal">PayPal</option>
+                <option value="cash_on_delivery">Cash on Delivery</option>
+            </select>
+
             <button type="submit">Place Order</button>
         </form>
 
